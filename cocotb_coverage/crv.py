@@ -40,7 +40,8 @@ import itertools
 import warnings
 
 # python-constraint is an external pip-installable package used here
-import constraint
+from constraint import *
+#import constraint
 
 class Randomized(object):
     """Base class for randomized types.
@@ -342,7 +343,7 @@ class Randomized(object):
         """Add a constraint for a specific random variables list
         (which determines a type of a constraint - simple or implicit).
         """
-        if isinstance(cstr, constraint.Constraint):
+        if isinstance(cstr, Constraint):
             # could be a Constraint object...
             pass
         else:
@@ -524,7 +525,7 @@ class Randomized(object):
         # step 2: resolve implicit constraints using external solver
 
         # external hard constraint solver - package python-constraint
-        problem = constraint.Problem()
+        problem = Problem(MinConflictsSolver())
 
         constrainedVars = []  # all random variables for the solver
 
@@ -538,7 +539,11 @@ class Randomized(object):
             problem.addConstraint(self._implConstraints[rvars], rvars)
 
         # solve problem
-        solutions = problem.getSolutions()
+        solution1 = problem.getSolution()
+        if solution1 is None:
+            solutions = []
+        else:
+            solutions = [solution1, solution1]
 
         if (len(solutions) == 0) & (len(constrainedVars) > 0):
             raise Exception("Could not resolve implicit constraints!")
@@ -719,5 +724,6 @@ class Randomized(object):
          "Function delConstraint() is deprecated, use del_constraint() instead"
         )
         self.del_constraint(cstr)
+
 
 
